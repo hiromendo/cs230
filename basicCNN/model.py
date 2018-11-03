@@ -5,7 +5,6 @@ class SoundCNN():
 	def __init__(self, classes):
 		self.x = tf.placeholder(tf.float32, [None, 3381])
 		self.y_ = tf.placeholder(tf.float32, [None, classes])
-
 		self.x_image = tf.reshape(self.x, [-1,21,161,1]) #[frequency, time]
 
 		#start with 5x5 convolution, 32 filters
@@ -14,19 +13,25 @@ class SoundCNN():
 		self.h_conv1 = tf.nn.relu(conv2d(self.x_image, self.W_conv1) + self.b_conv1)
 		#followed by max_pool
 		self.h_pool1 = max_pool_2x2(self.h_conv1)
+		#second 5x5 conv, 32 filters
 		self.W_conv2 = weight_variable([5, 5, 32, 64])
 		self.b_conv2 = bias_variable([64])
-		#second 5x5 conv, 32 filters
 		self.h_conv2 = tf.nn.relu(conv2d(self.h_pool1, self.W_conv2) + self.b_conv2)
 		#second max pool
 		self.h_pool2 = max_pool_2x2(self.h_conv2)
+		#third conv layer 5x5 conv, 128 filters
+		self.W_conv3 = weight_variable([5, 5, 32, 128])
+		self.b_conv3 = bias_variable([128])
+		self.h_conv3 = tf.nn.relu(conv2d(self.h_pool2, self.W_conv3) + self.b_conv3)
+		#third max pool
+		self.h_pool3 = max_pool_2x2(self.h_conv3)
 		#fully connected layer
 		self.W_fc1 = weight_variable([8 * 8 * 64, 1024])
 		self.b_fc1 = bias_variable([1024])
 		#flatten for FC layer
-		self.h_pool2_flat = tf.reshape(self.h_pool2, [-1, 8*8*64])
+		self.h_pool3_flat = tf.reshape(self.h_pool3, [-1, 8*8*64])
 		#first FC layer
-		self.h_fc1 = tf.nn.relu(tf.matmul(self.h_pool2_flat, self.W_fc1) + self.b_fc1)
+		self.h_fc1 = tf.nn.relu(tf.matmul(self.h_pool3_flat, self.W_fc1) + self.b_fc1)
 		#implement dropout
 		self.keep_prob = tf.placeholder("float")
 		self.h_fc1_drop = tf.nn.dropout(self.h_fc1, self.keep_prob)
