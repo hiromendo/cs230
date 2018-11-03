@@ -8,7 +8,7 @@ file_name = "goo"
 sample_rate, audio = wavfile.read(file_name + '.wav')
 
 def log_specgram(audio, sample_rate, window_size=20,
-                 step_size=10, eps=1e-10):
+                 step_size=5, eps=1e-10):
     nperseg = int(round(window_size * sample_rate / 1e3))
     noverlap = int(round(step_size * sample_rate / 1e3))
     freqs, times, spec = signal.spectrogram(audio,
@@ -27,6 +27,7 @@ ax.set_axis_off()
 fig.add_axes(ax)
 #extract spectrogram
 _,_, spectrogram = log_specgram(audio, sample_rate)
+print(np.shape(spectrogram))
 #plot spectrogram
 plt.imshow(spectrogram.T, aspect='auto', origin='lower')
 #save as image file

@@ -26,8 +26,11 @@ def trainNetConv(maxIter):
 		tf.initialize_all_variables().run()
 		saver = tf.train.Saver(tf.all_variables())
 		myIters = 0
+		#trainX should be a [n,m] matrix where n = w*h
+		#trainY should be a [1,m] matrix of classifications
 		fullTrain = np.concatenate((trainX,trainYa),axis=1)
 		while myIters < maxIter:
+			#shuffle along first index
 			perms = np.random.permutation(fullTrain)
 			for i in range(perms.shape[0]/batchSize):
 				batch = perms[i *batchSize:(i+1) * batchSize,:]

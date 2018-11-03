@@ -3,31 +3,40 @@ import numpy as np
 
 class SoundCNN():
 	def __init__(self, classes):
-		self.x = tf.placeholder(tf.float32, [None, 1024])
+		self.x = tf.placeholder(tf.float32, [None, 3381])
 		self.y_ = tf.placeholder(tf.float32, [None, classes])
 
-		self.x_image = tf.reshape(self.x, [-1,32,32,1])
+		self.x_image = tf.reshape(self.x, [-1,21,161,1]) #[frequency, time]
+
+		#start with 5x5 convolution, 32 filters
 		self.W_conv1 = weight_variable([5, 5, 1, 32])
 		self.b_conv1 = bias_variable([32])
 		self.h_conv1 = tf.nn.relu(conv2d(self.x_image, self.W_conv1) + self.b_conv1)
+		#followed by max_pool
 		self.h_pool1 = max_pool_2x2(self.h_conv1)
 		self.W_conv2 = weight_variable([5, 5, 32, 64])
 		self.b_conv2 = bias_variable([64])
-
+		#second 5x5 conv, 32 filters
 		self.h_conv2 = tf.nn.relu(conv2d(self.h_pool1, self.W_conv2) + self.b_conv2)
+		#second max pool
 		self.h_pool2 = max_pool_2x2(self.h_conv2)
+		#fully connected layer
 		self.W_fc1 = weight_variable([8 * 8 * 64, 1024])
 		self.b_fc1 = bias_variable([1024])
-
+		#flatten for FC layer
 		self.h_pool2_flat = tf.reshape(self.h_pool2, [-1, 8*8*64])
+		#first FC layer
 		self.h_fc1 = tf.nn.relu(tf.matmul(self.h_pool2_flat, self.W_fc1) + self.b_fc1)
+		#implement dropout
 		self.keep_prob = tf.placeholder("float")
 		self.h_fc1_drop = tf.nn.dropout(self.h_fc1, self.keep_prob)
+		#second fully connected layer
 		self.W_fc2 = weight_variable([1024, classes])
 		self.b_fc2 = bias_variable([classes])
 		self.h_fc2 = tf.matmul(self.h_fc1_drop, self.W_fc2) + self.b_fc2
+		#output layer:softmax
 		self.y_conv=tf.nn.softmax(tf.matmul(self.h_fc1_drop, self.W_fc2) + self.b_fc2)
-
+		#Loss Function
 		self.cross_entropy = -tf.reduce_sum(self.y_*tf.log(tf.clip_by_value(self.y_conv,1e-10,1.0)))
 		self.correct_prediction = tf.equal(tf.argmax(self.y_conv,1), tf.argmax(self.y_,1))
 		self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction, "float"))
