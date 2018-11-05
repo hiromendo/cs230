@@ -2,11 +2,15 @@ from scipy.io import wavfile
 from scipy import signal
 import numpy as np
 import matplotlib.pyplot as plt
+import wave
+import audioop
 
 def log_specgram(audio, sample_rate, window_size=20,
                  step_size=5, eps=1e-10):
     nperseg = int(round(window_size * sample_rate / 1e3))
     noverlap = int(round(step_size * sample_rate / 1e3))
+    print("nperseg: " + str(nperseg))
+    print("noverlap: " + str(noverlap))
     freqs, times, spec = signal.spectrogram(audio,
                                     fs=sample_rate,
                                     window='hann',
@@ -14,6 +18,15 @@ def log_specgram(audio, sample_rate, window_size=20,
                                     noverlap=noverlap,
                                     detrend=False)
     return freqs, times, np.log(spec.T.astype(np.float32) + eps)
+
+#read in stereo file, write out mono file
+def stereo_to_mono(infile, outfile):
+    stereo = wave.open(infile, 'rb')
+    mono = wave.open(outfile, 'wb')
+    mono.setparams(stereo.getparams())
+    mono.setnchannels(1)
+    mono.writeframes(audioop.tomono(stereo.readframes(float('inf')), stereo.getsampwidth(), 1, 1))
+    mono.close()
 
 #Saves a spectogram as an image
 def save_spectro_as_img(spectrogram, file_name): #takes a spectrogram array
