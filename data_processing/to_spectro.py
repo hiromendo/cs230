@@ -48,7 +48,8 @@ if __name__ == '__main__':
     #base for file names
     base_num = 4065001
     #iterate over files
-    for i in range(500):
+    batch_size = m
+    for i in range(m):
         ref_num = base_num + i
         stereo_file = "English_smallset/" + str(ref_num) + ".wav"
         mono_file = "English_smallset/mono/" + str(ref_num) + ".wav"
@@ -65,6 +66,12 @@ if __name__ == '__main__':
     np.save("trainX",trainX)
     #to load: 
     #trainX = np.load("trainX.npy")
+    #make a matching Y array
+    trainY = np.zeros((m,1))
+    trainY[:] = 0 #0 for english
+    print(np.shape(trainY))
+    np.save("trainY",trainY)
+
 
 
 
