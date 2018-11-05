@@ -6,11 +6,11 @@ import wave
 import audioop
 
 def log_specgram(audio, sample_rate, window_size=20,
-                 step_size=5, eps=1e-10):
+                 step_size=10, eps=1e-10):
     nperseg = int(round(window_size * sample_rate / 1e3))
     noverlap = int(round(step_size * sample_rate / 1e3))
-    print("nperseg: " + str(nperseg))
-    print("noverlap: " + str(noverlap))
+    #print("nperseg: " + str(nperseg))
+    #print("noverlap: " + str(noverlap))
     freqs, times, spec = signal.spectrogram(audio,
                                     fs=sample_rate,
                                     window='hann',
@@ -43,19 +43,28 @@ def save_spectro_as_img(spectrogram, file_name): #takes a spectrogram array
 
 
 if __name__ == '__main__':
-    #initialize variables
+    #initialize variable to store samples (list we convert to npy array later)
     trainX = []
-    #put spectrogram into array
-    for file in file_names:
+    #base for file names
+    base_num = 4065001
+    #iterate over files
+    for i in range(500):
+        ref_num = base_num + i
+        stereo_file = "English_smallset/" + str(ref_num) + ".wav"
+        mono_file = "English_smallset/mono/" + str(ref_num) + ".wav"
+        #convert to mono
+        stereo_to_mono(stereo_file, mono_file)
         #read in audio file
-        sample_rate, audio = wavfile.read(file + '.wav')
+        sample_rate, audio = wavfile.read(mono_file)
         #extract spectrogram
         _,_, spectrogram = log_specgram(audio, sample_rate)
-        print(np.shape(spectrogram))
-        #add assert size line when we know size here
-        spectro_flat = spectrogram.reshape([])
+        #print(np.shape(spectrogram))
         trainX.append(spectrogram)
+        print(np.shape(trainX))
+    trainX = np.array(trainX)
     np.save("trainX",trainX)
+    #to load: 
+    #trainX = np.load("trainX.npy")
 
 
 
