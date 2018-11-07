@@ -53,6 +53,7 @@ if __name__ == '__main__':
     #base_num = 0
     #iterate over files
     m = 0 #batch size
+    errors = 0
     base_folder = "Dropbox/CS230/Mandarin_3secDataset_Stereo/"
     #for i in range(m):
     for stereo_file in os.listdir(base_folder):
@@ -74,12 +75,13 @@ if __name__ == '__main__':
             m += 1
             print(m)
             #save backup copy
-            if (batch_size % 10) == 0:
+            if (batch_size % 1000) == 0:
                 trainX = np.array(trainX)
                 np.save("Docs/audioNPY/trainX",trainX)
             print(m)
         except:
-            print("error on: " + stereo_file)
+            error += 1
+            print("error on: " + stereo_file + " total errors: " + str(error))
             continue
     trainX = np.array(trainX)
     np.save("trainX",trainX)
