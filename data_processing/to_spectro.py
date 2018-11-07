@@ -22,7 +22,10 @@ def log_specgram(audio, sample_rate, window_size=20,
 
 #read in stereo file, write out mono file
 def stereo_to_mono(infile, outfile):
-    stereo = wave.open(infile, 'rb')
+    try:
+        stereo = wave.open(infile, 'rb')
+    except:
+        stereo = wave.open(infile, 'r')
     mono = wave.open(outfile, 'wb')
     mono.setparams(stereo.getparams())
     mono.setnchannels(1)
@@ -49,36 +52,44 @@ if __name__ == '__main__':
     #base for file names
     #base_num = 0
     #iterate over files
-    batch_size = m
+    m = 0 #batch size
+    base_folder = "~/Dropbox/Mandarin_3secDataset_Stereo/"
     #for i in range(m):
-    for stereo_file in os.listdir ("Mandarin"):
-        base_array = np.zeros(300,300)
-        #ref_num = base_num + i
-        #stereo_file = "Mandarin/" + str(ref_num) + ".wav"
-        mono_file = "Mandarin_mono/" + str(m) + ".wav"
-        #convert to mono
-        stereo_to_mono(stereo_file, mono_file)
-        #read in audio file
-        sample_rate, audio = wavfile.read(mono_file)
-        #extract spectrogram
-        _,_, spectrogram = log_specgram(audio, sample_rate)
-        #print(np.shape(spectrogram))
-        spectro_array = base_array[0:299,0:81]
-        trainX.append(spectro_array)
-        m += 1
-        if (batch_size % 1000) == 0:
-            trainX = np.array(trainX)
-            np.save("trainX",trainX)
-        print(m)
+    for stereo_file in os.listdir (base_folder):
+        try:
+            base_array = np.zeros((300,300))
+            #ref_num = base_num + i
+            stereo_file = base_folder + stereo_file
+            print(stereo_file)
+            mono_file = "Mandarin_mono/" + str(m) + ".wav"
+            #convert to mono
+            stereo_to_mono(stereo_file, mono_file)
+            #read in audio file
+            sample_rate, audio = wavfile.read(mono_file)
+            #extract spectrogram
+            _,_, spectrogram = log_specgram(audio, sample_rate)
+            print(np.shape(spectrogram))
+            spectro_array = base_array[0:299,0:81]
+            trainX.append(spectro_array)
+            m += 1
+            print(m)
+            #save backup copy
+            if (batch_size % 100) == 0:
+                trainX = np.array(trainX)
+                np.save("trainX",trainX)
+            print(m)
+        except:
+            print("error on: " + stereo_file)
+            continue
     trainX = np.array(trainX)
     np.save("trainX",trainX)
     #to load: 
     #trainX = np.load("trainX.npy")
     #make a matching Y array
-    trainY = np.zeros((m,1))
-    trainY[:] = 0 #0 for english
-    print(np.shape(trainY))
-    np.save("trainY",trainY)
+    #trainY = np.zeros((m,1))
+    #trainY[:] = 0 #0 for english
+    #print(np.shape(trainY))
+    #np.save("trainY",trainY)
 
 
 
