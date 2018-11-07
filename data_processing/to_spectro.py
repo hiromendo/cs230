@@ -53,15 +53,15 @@ if __name__ == '__main__':
     #base_num = 0
     #iterate over files
     m = 0 #batch size
-    base_folder = "~/Dropbox/Mandarin_3secDataset_Stereo/"
+    base_folder = "Dropbox/CS230/Mandarin_3secDataset_Stereo/"
     #for i in range(m):
-    for stereo_file in os.listdir (base_folder):
+    for stereo_file in os.listdir(base_folder):
         try:
             base_array = np.zeros((300,300))
             #ref_num = base_num + i
             stereo_file = base_folder + stereo_file
             print(stereo_file)
-            mono_file = "Mandarin_mono/" + str(m) + ".wav"
+            mono_file = "Docs/Mandarin_mono/" + str(m) + ".wav"
             #convert to mono
             stereo_to_mono(stereo_file, mono_file)
             #read in audio file
@@ -69,14 +69,14 @@ if __name__ == '__main__':
             #extract spectrogram
             _,_, spectrogram = log_specgram(audio, sample_rate)
             print(np.shape(spectrogram))
-            spectro_array = base_array[0:299,0:81]
-            trainX.append(spectro_array)
+            base_array[0:299,0:81] = spectrogram
+            trainX.append(base_array)
             m += 1
             print(m)
             #save backup copy
-            if (batch_size % 100) == 0:
+            if (batch_size % 10) == 0:
                 trainX = np.array(trainX)
-                np.save("trainX",trainX)
+                np.save("Docs/audioNPY/trainX",trainX)
             print(m)
         except:
             print("error on: " + stereo_file)
