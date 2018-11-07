@@ -68,8 +68,8 @@ if __name__ == '__main__':
             sample_rate, audio = wavfile.read(mono_file)
             #extract spectrogram
             _,_, spectrogram = log_specgram(audio, sample_rate)
-            print(np.shape(spectrogram))
-            base_array[0:299,0:81] = spectrogram
+            h,w = np.shape(spectrogram)
+            base_array[0:h,0:w] = spectrogram
             trainX.append(base_array)
             m += 1
             print(m)
