@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import wave
 import audioop
+import os
 
 def log_specgram(audio, sample_rate, window_size=20,
                  step_size=10, eps=1e-10):
@@ -46,13 +47,15 @@ if __name__ == '__main__':
     #initialize variable to store samples (list we convert to npy array later)
     trainX = []
     #base for file names
-    base_num = 4065001
+    #base_num = 0
     #iterate over files
     batch_size = m
-    for i in range(m):
-        ref_num = base_num + i
-        stereo_file = "English_smallset/" + str(ref_num) + ".wav"
-        mono_file = "English_smallset/mono/" + str(ref_num) + ".wav"
+    #for i in range(m):
+    for stereo_file in os.listdir ("Mandarin"):
+        base_array = np.zeros(300,300)
+        #ref_num = base_num + i
+        #stereo_file = "Mandarin/" + str(ref_num) + ".wav"
+        mono_file = "Mandarin_mono/" + str(m) + ".wav"
         #convert to mono
         stereo_to_mono(stereo_file, mono_file)
         #read in audio file
@@ -60,8 +63,13 @@ if __name__ == '__main__':
         #extract spectrogram
         _,_, spectrogram = log_specgram(audio, sample_rate)
         #print(np.shape(spectrogram))
-        trainX.append(spectrogram)
-        print(np.shape(trainX))
+        spectro_array = base_array[0:299,0:81]
+        trainX.append(spectro_array)
+        m += 1
+        if (batch_size % 1000) == 0:
+            trainX = np.array(trainX)
+            np.save("trainX",trainX)
+        print(m)
     trainX = np.array(trainX)
     np.save("trainX",trainX)
     #to load: 
