@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import wave
 import audioop
 import os
+#from pydub import AudioSegment
 
 def log_specgram(audio, sample_rate, window_size=20,
                  step_size=10, eps=1e-10):
@@ -49,39 +50,40 @@ def save_spectro_as_img(spectrogram, file_name): #takes a spectrogram array
 if __name__ == '__main__':
     #initialize variable to store samples (list we convert to npy array later)
     trainX = []
-    #base for file names
-    #base_num = 0
-    #iterate over files
     m = 0 #batch size
     errors = 0
-    base_folder = "Dropbox/CS230/Mandarin_3secDataset_Stereo/"
-    #for i in range(m):
+    #base for file names
+    base_folder = "Mandarin_Mono_3sec/"
+    #iterate over files
     for stereo_file in os.listdir(base_folder):
         try:
+            #set up padding array
             base_array = np.zeros((300,300))
-            #ref_num = base_num + i
+            #set up file names
             stereo_file = base_folder + stereo_file
-            print(stereo_file)
-            mono_file = "Docs/Mandarin_mono/" + str(m) + ".wav"
+            mono_file = "mandarin_mono/" + str(m) + ".wav"
             #convert to mono
             stereo_to_mono(stereo_file, mono_file)
             #read in audio file
             sample_rate, audio = wavfile.read(mono_file)
             #extract spectrogram
             _,_, spectrogram = log_specgram(audio, sample_rate)
+            os.remove(mono_file) #save memory by removing the mono file
+            #print(np.shape(spectrogram))
+            #pad spectrogram
             h,w = np.shape(spectrogram)
             base_array[0:h,0:w] = spectrogram
+            #add to storage
             trainX.append(base_array)
             m += 1
-            print(m)
             #save backup copy
-            if (batch_size % 1000) == 0:
-                trainX = np.array(trainX)
-                np.save("Docs/audioNPY/trainX",trainX)
-            print(m)
+            if (m % 10000) == 0:
+                trainX_array = np.array(trainX)
+                np.save("trainX_" + str(m),trainX_array)
+                print(m)
         except:
-            error += 1
-            print("error on: " + stereo_file + " total errors: " + str(error))
+            errors += 1
+            print("error on: " + stereo_file + " total errors: " + str(errors))
             continue
     trainX = np.array(trainX)
     np.save("trainX",trainX)
