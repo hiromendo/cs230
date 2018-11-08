@@ -100,13 +100,13 @@ def alexNet(features, labels, mode):
 
   # Pooling Layer #5
   # Input Tensor Shape: [m, 18, 18, 512]
-  # Output Tensor Shape: [m, 8, 8, 512]
+  # Output Tensor Shape: [m, 9, 9, 512]
   pool5 = tf.layers.max_pooling2d(inputs=conv12, pool_size=[2, 2], strides=2)
 
   # Flatten tensor into a batch of vectors
-  # Input Tensor Shape: [m, 8, 8, 512]
-  # Output Tensor Shape: [m, 8 * 8 * 512]
-  pool5_flat = tf.reshape(pool5, [-1, 8 * 8 * 512])
+  # Input Tensor Shape: [m, 9, 9, 512]
+  # Output Tensor Shape: [m, 9 * 9 * 512]
+  pool5_flat = tf.reshape(pool5, [-1, 9 * 9 * 512])
 
   # Dense Layer # 1
   # Densely connected layer with 4096 neurons
@@ -163,10 +163,10 @@ def alexNet(features, labels, mode):
 
 def main(unused_argv):
   # Load training and eval data
-  train_data = np.load("trainX_pad.npy")
-  train_labels = np.asarray(np.load("trainY.npy"),dtype=np.int32)
-  eval_data = np.load("trainX_pad.npy")
-  eval_labels = np.asarray(np.load("trainY.npy"),dtype=np.int32)
+  train_data = np.load("trainX38K.npy")
+  train_labels = np.asarray(np.load("trainY38K.npy"),dtype=np.int32)
+  eval_data = np.load("evalX1k.npy")
+  eval_labels = np.asarray(np.load("evalY1K.npy"),dtype=np.int32)
 
   # Create the Estimator
   audio_classifier = tf.estimator.Estimator(model_fn=alexNet, model_dir="/tmp/alexNet")
