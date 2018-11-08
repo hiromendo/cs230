@@ -7,7 +7,7 @@ import tensorflow as tf
 tf.logging.set_verbosity(tf.logging.INFO)
 
 
-def alexNet(features, labels, mode):
+def cnnModel(features, labels, mode):
 
   #based on AlexNet
 
@@ -138,13 +138,13 @@ def alexNet(features, labels, mode):
 
 def main(unused_argv):
   # Load training and eval data
-  train_data = np.load("mandarin_10K.npy")
-  train_labels = np.asarray(np.load("mockY.npy"),dtype=np.int32)
-  eval_data = np.load("mandarin_10K.npy")
-  eval_labels = np.asarray(np.load("mockY.npy"),dtype=np.int32)
+  train_data = np.load("datasets/trainX38K.npy")
+  train_labels = np.asarray(np.load("datasets/trainY38K.npy"),dtype=np.int32)
+  eval_data = np.load("datasets/evalX1K.npy")
+  eval_labels = np.asarray(np.load("datasets/evalY1K.npy"),dtype=np.int32)
 
   # Create the Estimator
-  audio_classifier = tf.estimator.Estimator(model_fn=alexNet, model_dir="/tmp/alexNet")
+  audio_classifier = tf.estimator.Estimator(model_fn=cnnModel, model_dir="checkpoint_path")
 
   # Set up logging for predictions
   # Log the values in the "Softmax" tensor with label "probabilities"
