@@ -2,6 +2,6 @@
 
 List of Neural Networks:
 
-(1) basicCNN — basic CNN that I used to test that padding was working
+(1) CNNs — contains models for basicCNN, CNN, alexNet
 
-(2) AlexNet — complex CNN, not tested yet
+(2) CRNN - not tested yet
