@@ -18,74 +18,99 @@ def alexNet(features, labels, mode):
   # Convolutional Layer #1
   # Computes 64 features using a 3x3 filter with ReLU activation.
   # Input Tensor Shape: [m, 300, 300, 1]
-  # Output Tensor Shape: [m, 300, 300, 32]
-  conv1 = tf.layers.conv2d(inputs=input_layer,filters=32,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+  # Output Tensor Shape: [m, 300, 300, 64]
+  conv1 = tf.layers.conv2d(inputs=input_layer,filters=64,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
 
-   # Pooling Layer #1
+  # Convolutional Layer #2
+  # Input Tensor Shape: [m, 300, 300, 64]
+  # Output Tensor Shape: [m, 300, 300, 64]
+  conv2 = tf.layers.conv2d(inputs=conv1,filters=64,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+  
+  # Pooling Layer #1
   # First max pooling layer with a 2x2 filter and stride of 2
-  # Input Tensor Shape: [m, 300, 300, 32]
-  # Output Tensor Shape: [m, 150, 150, 32]
-  pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2, padding='valid')
+  # Input Tensor Shape: [m, 300, 300, 64]
+  # Output Tensor Shape: [m, 150, 150, 64]
+  pool1 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2, padding='valid')
 
   # Convolutional Layer #3
-  # Input Tensor Shape: [m, 150, 150, 32]
-  # Output Tensor Shape: [m, 150, 150, 64]
-  conv2 = tf.layers.conv2d(inputs=pool1,filters=64,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+  # Input Tensor Shape: [m, 150, 150, 64]
+  # Output Tensor Shape: [m, 150, 150, 128]
+  conv3 = tf.layers.conv2d(inputs=pool1,filters=128,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+
+  # Convolutional Layer #4
+  # Input Tensor Shape: [m, 150, 150, 128]
+  # Output Tensor Shape: [m, 150, 150, 128]
+  conv4 = tf.layers.conv2d(inputs=conv3,filters=128,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
 
   # Pooling Layer #2
   # Second max pooling layer with a 2x2 filter and stride of 2
-  # Input Tensor Shape: [m, 150, 150, 64]
-  # Output Tensor Shape: [m, 75, 75, 64]
-  pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
+  # Input Tensor Shape: [m, 150, 150, 128]
+  # Output Tensor Shape: [m, 75, 75, 128]
+  pool2 = tf.layers.max_pooling2d(inputs=conv4, pool_size=[2, 2], strides=2)
 
   # Convolutional Layer #5
-  # Input Tensor Shape: [m, 75, 75, 64]
-  # Output Tensor Shape: [m, 75, 75, 128]
-  conv3 = tf.layers.conv2d(inputs=pool2,filters=128,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+  # Input Tensor Shape: [m, 75, 75, 128]
+  # Output Tensor Shape: [m, 75, 75, 256]
+  conv5 = tf.layers.conv2d(inputs=pool2,filters=256,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
 
   # Convolutional Layer #6
-  # Input Tensor Shape: [m, 75, 75, 128]
-  # Output Tensor Shape: [[m, 75, 75, 128]
-  conv4 = tf.layers.conv2d(inputs=conv3,filters=128,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
-
-  # Pooling Layer #3
-  # Input Tensor Shape: [m, 75, 75, 128]
-  # Output Tensor Shape: [m, 37, 37, 128]
-  pool3 = tf.layers.max_pooling2d(inputs=conv4, pool_size=[2, 2], strides=2)
-
-  # Convolutional Layer #8
-  # Input Tensor Shape: [m, 37, 37, 128]
-  # Output Tensor Shape: [m, 37, 37, 256]
-  conv5 = tf.layers.conv2d(inputs=pool3,filters=256,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
-
-  # Convolutional Layer #9
-  # Input Tensor Shape: [m, 37, 37, 256]
-  # Output Tensor Shape: [m, 37, 37, 256]
+  # Input Tensor Shape: [m, 75, 75, 256]
+  # Output Tensor Shape: [[m, 75, 75, 256]
   conv6 = tf.layers.conv2d(inputs=conv5,filters=256,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
 
-  # Pooling Layer #4
+  # Convolutional Layer #7
+  # Input Tensor Shape: [m, 75, 75, 256]
+  # Output Tensor Shape: [m, 75, 75, 256]
+  conv7 = tf.layers.conv2d(inputs=conv6,filters=256,kernel_size=[5, 5],strides=(2,2),padding="same",activation=tf.nn.relu)
+
+  # Pooling Layer #3
+  # Input Tensor Shape: [m, 75, 75, 256]
+  # Output Tensor Shape: [m, 37, 37, 256]
+  pool3 = tf.layers.max_pooling2d(inputs=conv7, pool_size=[2, 2], strides=2)
+
+  # Convolutional Layer #8
   # Input Tensor Shape: [m, 37, 37, 256]
-  # Output Tensor Shape: [m, 18, 18, 256]
-  pool4 = tf.layers.max_pooling2d(inputs=conv6, pool_size=[2, 2], strides=2)
+  # Output Tensor Shape: [m, 37, 37, 512]
+  conv8 = tf.layers.conv2d(inputs=pool3,filters=512,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+
+  # Convolutional Layer #9
+  # Input Tensor Shape: [m, 37, 37, 512]
+  # Output Tensor Shape: [m, 37, 37, 512]
+  conv9 = tf.layers.conv2d(inputs=conv8,filters=512,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+
+  # Convolutional Layer #10
+  # Input Tensor Shape: [m, 37, 37, 512]
+  # Output Tensor Shape: [m, 37, 37, 512]
+  conv10 = tf.layers.conv2d(inputs=conv9,filters=512,kernel_size=[5, 5],strides=(2,2),padding="same",activation=tf.nn.relu)
+
+  # Pooling Layer #4
+  # Input Tensor Shape: [m, 37, 37, 512]
+  # Output Tensor Shape: [m, 18, 18, 512]
+  pool4 = tf.layers.max_pooling2d(inputs=conv10, pool_size=[2, 2], strides=2)
 
   # Convolutional Layer #11
-  # Input Tensor Shape: [m, 18, 18, 256]
+  # Input Tensor Shape: [m, 18, 18, 512]
   # Output Tensor Shape: [m, 18, 18, 512]
-  conv7 = tf.layers.conv2d(inputs=pool4,filters=512,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+  conv11 = tf.layers.conv2d(inputs=pool4,filters=512,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+
+  # Convolutional Layer #12
+  # Input Tensor Shape: [m, 18, 18, 512]
+  # Output Tensor Shape: [m, 18, 18, 512]
+  conv12 = tf.layers.conv2d(inputs=conv11,filters=512,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
 
   # Pooling Layer #5
   # Input Tensor Shape: [m, 18, 18, 512]
-  # Output Tensor Shape: [m, 9, 9, 512]
-  pool5 = tf.layers.max_pooling2d(inputs=conv7, pool_size=[2, 2], strides=2)
+  # Output Tensor Shape: [m, 8, 8, 512]
+  pool5 = tf.layers.max_pooling2d(inputs=conv12, pool_size=[2, 2], strides=2)
 
   # Flatten tensor into a batch of vectors
-  # Input Tensor Shape: [m, 9, 9, 512]
-  # Output Tensor Shape: [m, 9 * 9 * 512]
-  pool5_flat = tf.reshape(pool5, [-1, 9 * 9 * 512])
+  # Input Tensor Shape: [m, 8, 8, 512]
+  # Output Tensor Shape: [m, 8 * 8 * 512]
+  pool5_flat = tf.reshape(pool5, [-1, 8 * 8 * 512])
 
   # Dense Layer # 1
   # Densely connected layer with 4096 neurons
-  # Input Tensor Shape: [m, 9 * 9 * 512]
+  # Input Tensor Shape: [m, 8 * 8 * 512]
   # Output Tensor Shape: [m, 4096]
   dense1 = tf.layers.dense(inputs=pool5_flat, units=4096, activation=tf.nn.relu)
 
@@ -99,12 +124,12 @@ def alexNet(features, labels, mode):
   dense2 = tf.layers.dense(inputs=dropout1, units=4096, activation=tf.nn.relu)
 
   # Add dropout operation; 0.8 probability that element will be kept
-  #dropout2 = tf.layers.dropout(inputs=dense2, rate=0.2, training=mode == tf.estimator.ModeKeys.TRAIN)
+  dropout2 = tf.layers.dropout(inputs=dense2, rate=0.2, training=mode == tf.estimator.ModeKeys.TRAIN)
 
   # Dense Layer # 2 (Output)
   # Input Tensor Shape: [m, 4096]
   # Output Tensor Shape: [batch_size, c] #NEEDS TO BE UPDATED WITH APPROPRIATE # OF CLASSES #6
-  logits = tf.layers.dense(inputs=dense2, units=4)
+  logits = tf.layers.dense(inputs=dropout2, units=5)
 
   # Apply Softmax
   predictions = {
@@ -138,10 +163,10 @@ def alexNet(features, labels, mode):
 
 def main(unused_argv):
   # Load training and eval data
-  train_data = np.load("mandarin_10K.npy")
-  train_labels = np.asarray(np.load("mockY.npy"),dtype=np.int32)
-  eval_data = np.load("mandarin_10K.npy")
-  eval_labels = np.asarray(np.load("mockY.npy"),dtype=np.int32)
+  train_data = np.load("trainX_pad.npy")
+  train_labels = np.asarray(np.load("trainY.npy"),dtype=np.int32)
+  eval_data = np.load("trainX_pad.npy")
+  eval_labels = np.asarray(np.load("trainY.npy"),dtype=np.int32)
 
   # Create the Estimator
   audio_classifier = tf.estimator.Estimator(model_fn=alexNet, model_dir="/tmp/alexNet")
