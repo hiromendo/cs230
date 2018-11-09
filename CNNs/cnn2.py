@@ -138,19 +138,19 @@ def cnnModel(features, labels, mode):
 
 def main(unused_argv):
   # Load test data
-  train_data = np.load("datasets/trainX38K.npy")
-  train_labels = np.asarray(np.load("datasets/trainY38K.npy"),dtype=np.int32)
-  eval_data = np.load("datasets/evalX1K.npy")
-  eval_labels = np.asarray(np.load("datasets/evalY1K.npy"),dtype=np.int32)
+  train_data = np.load("datasets/trainX2.npy")
+  train_labels = np.asarray(np.load("datasets/trainY2.npy"),dtype=np.int32)
+  #eval_data = np.load("datasets/evalX2.npy")
+  #eval_labels = np.asarray(np.load("datasets/evalY2.npy"),dtype=np.int32)
 
   # Create the Estimator
   audio_classifier = tf.estimator.Estimator(model_fn=cnnModel, model_dir="checkpoint_path")
 
   # Set up logging for predictions
   # Log the values in the "Softmax" tensor with label "probabilities"
-  tensors_to_log = {"probabilities": "softmax_tensor"}
-  logging_hook = tf.train.LoggingTensorHook(
-      tensors=tensors_to_log, every_n_iter=50)
+  #tensors_to_log = {"probabilities": "softmax_tensor"}
+  #ogging_hook = tf.train.LoggingTensorHook(
+  #    tensors=tensors_to_log, every_n_iter=50)
 
   # Train the model
   train_input_fn = tf.estimator.inputs.numpy_input_fn(
@@ -165,13 +165,13 @@ def main(unused_argv):
       hooks=[logging_hook])
 
   # Evaluate the model and print results
-  eval_input_fn = tf.estimator.inputs.numpy_input_fn(
-      x={"x": eval_data},
-      y=eval_labels,
-      num_epochs=1,
-      shuffle=False)
-  eval_results = audio_classifier.evaluate(input_fn=eval_input_fn)
-  print(eval_results)
+  #eval_input_fn = tf.estimator.inputs.numpy_input_fn(
+  #    x={"x": eval_data},
+  #    y=eval_labels,
+  #    num_epochs=1,
+  #    shuffle=False)
+  #eval_results = audio_classifier.evaluate(input_fn=eval_input_fn)
+  #print(eval_results)
 
 
 if __name__ == "__main__":

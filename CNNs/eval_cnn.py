@@ -27,7 +27,7 @@ def main(unused_argv):
       x={"x": test_data},
       y=test_labels,
       num_epochs=1,
-      shuffle=False)
+      shuffle=True)
   test_results = audio_classifier.evaluate(input_fn=test_input_fn)
   print(test_results)
 
