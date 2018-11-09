@@ -104,7 +104,7 @@ def cnnModel(features, labels, mode):
   # Dense Layer # 2 (Output)
   # Input Tensor Shape: [m, 4096]
   # Output Tensor Shape: [batch_size, c] #NEEDS TO BE UPDATED WITH APPROPRIATE # OF CLASSES #6
-  logits = tf.layers.dense(inputs=dropout2, units=4)
+  logits = tf.layers.dense(inputs=dropout2, units=2)
 
   # Apply Softmax
   predictions = {
@@ -161,8 +161,7 @@ def main(unused_argv):
       shuffle=True)
   audio_classifier.train(
       input_fn=train_input_fn,
-      steps=20000,
-      hooks=[logging_hook])
+      steps=20000)
 
   # Evaluate the model and print results
   #eval_input_fn = tf.estimator.inputs.numpy_input_fn(
