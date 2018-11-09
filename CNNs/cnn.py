@@ -137,7 +137,7 @@ def cnnModel(features, labels, mode):
 
 
 def main(unused_argv):
-  # Load training and eval data
+  # Load test data
   train_data = np.load("datasets/trainX38K.npy")
   train_labels = np.asarray(np.load("datasets/trainY38K.npy"),dtype=np.int32)
   eval_data = np.load("datasets/evalX1K.npy")
@@ -176,3 +176,5 @@ def main(unused_argv):
 
 if __name__ == "__main__":
   tf.app.run()
+
+
