@@ -2,7 +2,7 @@ from wavenet import WaveNetClassifier
 import numpy as np
 
 if __name__ == '__main__':
-	wnc = WaveNetClassifier((48000,), (5,), kernel_size = 2, dilation_depth = 9, n_filters = 40, task = 'classification')
+	wnc = WaveNetClassifier((48000,), (6,), kernel_size = 2, dilation_depth = 9, n_filters = 40, task = 'classification')
 	#read in datasets
 	X_train = np.load("x_5000.npy")
 	#Y should be 1-hot encoding! not a numerical classifier
