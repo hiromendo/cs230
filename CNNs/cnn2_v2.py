@@ -13,98 +13,98 @@ def cnnModel(features, labels, mode):
 
   # Input Layer
   # Reshape X to 4-D tensor: [batch_size, width, height, channels]
-  input_layer = tf.reshape(features["x"], [-1, 300, 300, 1])
+  input_layer = tf.reshape(features["x"], [-1, 300, 300, 1], "inputlayer")
 
   # Convolutional Layer #1
   # Computes 64 features using a 3x3 filter with ReLU activation.
   # Input Tensor Shape: [m, 300, 300, 1]
   # Output Tensor Shape: [m, 300, 300, 32]
-  conv1 = tf.layers.conv2d(inputs=input_layer,filters=32,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+  conv1 = tf.layers.conv2d(inputs=input_layer,filters=32,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu, "conv1")
 
    # Pooling Layer #1
   # First max pooling layer with a 2x2 filter and stride of 2
   # Input Tensor Shape: [m, 300, 300, 32]
   # Output Tensor Shape: [m, 150, 150, 32]
-  pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2, padding='valid')
+  pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2, padding='valid', "pool1")
 
   # Convolutional Layer #3
   # Input Tensor Shape: [m, 150, 150, 32]
   # Output Tensor Shape: [m, 150, 150, 64]
-  conv2 = tf.layers.conv2d(inputs=pool1,filters=64,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+  conv2 = tf.layers.conv2d(inputs=pool1,filters=64,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu, "conv2")
 
   # Pooling Layer #2
   # Second max pooling layer with a 2x2 filter and stride of 2
   # Input Tensor Shape: [m, 150, 150, 64]
   # Output Tensor Shape: [m, 75, 75, 64]
-  pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
+  pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2, "pool2")
 
   # Convolutional Layer #5
   # Input Tensor Shape: [m, 75, 75, 64]
   # Output Tensor Shape: [m, 75, 75, 128]
-  conv3 = tf.layers.conv2d(inputs=pool2,filters=128,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+  conv3 = tf.layers.conv2d(inputs=pool2,filters=128,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu, "conv3")
 
   # Convolutional Layer #6
   # Input Tensor Shape: [m, 75, 75, 128]
   # Output Tensor Shape: [[m, 75, 75, 128]
-  conv4 = tf.layers.conv2d(inputs=conv3,filters=128,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+  conv4 = tf.layers.conv2d(inputs=conv3,filters=128,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu, "conv4")
 
   # Pooling Layer #3
   # Input Tensor Shape: [m, 75, 75, 128]
   # Output Tensor Shape: [m, 37, 37, 128]
-  pool3 = tf.layers.max_pooling2d(inputs=conv4, pool_size=[2, 2], strides=2)
+  pool3 = tf.layers.max_pooling2d(inputs=conv4, pool_size=[2, 2], strides=2, "pool3")
 
   # Convolutional Layer #8
   # Input Tensor Shape: [m, 37, 37, 128]
   # Output Tensor Shape: [m, 37, 37, 256]
-  conv5 = tf.layers.conv2d(inputs=pool3,filters=256,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+  conv5 = tf.layers.conv2d(inputs=pool3,filters=256,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu, "conv5")
 
   # Convolutional Layer #9
   # Input Tensor Shape: [m, 37, 37, 256]
   # Output Tensor Shape: [m, 37, 37, 256]
-  conv6 = tf.layers.conv2d(inputs=conv5,filters=256,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+  conv6 = tf.layers.conv2d(inputs=conv5,filters=256,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu, "conv6")
 
   # Pooling Layer #4
   # Input Tensor Shape: [m, 37, 37, 256]
   # Output Tensor Shape: [m, 18, 18, 256]
-  pool4 = tf.layers.max_pooling2d(inputs=conv6, pool_size=[2, 2], strides=2)
+  pool4 = tf.layers.max_pooling2d(inputs=conv6, pool_size=[2, 2], strides=2, "pool4")
 
   # Convolutional Layer #11
   # Input Tensor Shape: [m, 18, 18, 256]
   # Output Tensor Shape: [m, 18, 18, 512]
-  conv7 = tf.layers.conv2d(inputs=pool4,filters=512,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu)
+  conv7 = tf.layers.conv2d(inputs=pool4,filters=512,kernel_size=[3, 3],strides=(1,1),padding="same",activation=tf.nn.relu, "conv7")
 
   # Pooling Layer #5
   # Input Tensor Shape: [m, 18, 18, 512]
   # Output Tensor Shape: [m, 9, 9, 512]
-  pool5 = tf.layers.max_pooling2d(inputs=conv7, pool_size=[2, 2], strides=2)
+  pool5 = tf.layers.max_pooling2d(inputs=conv7, pool_size=[2, 2], strides=2, "pool5")
 
   # Flatten tensor into a batch of vectors
   # Input Tensor Shape: [m, 9, 9, 512]
   # Output Tensor Shape: [m, 9 * 9 * 512]
-  pool5_flat = tf.reshape(pool5, [-1, 9 * 9 * 512])
+  pool5_flat = tf.reshape(pool5, [-1, 9 * 9 * 512], "pool5f")
 
   # Dense Layer # 1
   # Densely connected layer with 4096 neurons
   # Input Tensor Shape: [m, 9 * 9 * 512]
   # Output Tensor Shape: [m, 4096]
-  dense1 = tf.layers.dense(inputs=pool5_flat, units=4096, activation=tf.nn.relu)
+  dense1 = tf.layers.dense(inputs=pool5_flat, units=4096, activation=tf.nn.relu, "dense1")
 
   # Add dropout operation; 0.8 probability that element will be kept
-  dropout1 = tf.layers.dropout(inputs=dense1, rate=0.2, training=mode == tf.estimator.ModeKeys.TRAIN)
+  dropout1 = tf.layers.dropout(inputs=dense1, rate=0.2, training=mode == tf.estimator.ModeKeys.TRAIN, "dropout1")
 
   # Dense Layer # 1
   # Densely connected layer with 4096 neurons
   # Input Tensor Shape: [m, 4096]
   # Output Tensor Shape: [m, 4096]
-  dense2 = tf.layers.dense(inputs=dropout1, units=4096, activation=tf.nn.relu)
+  dense2 = tf.layers.dense(inputs=dropout1, units=4096, activation=tf.nn.relu, "dense2")
 
   # Add dropout operation; 0.8 probability that element will be kept
-  dropout2 = tf.layers.dropout(inputs=dense2, rate=0.2, training=mode == tf.estimator.ModeKeys.TRAIN)
+  dropout2 = tf.layers.dropout(inputs=dense2, rate=0.2, training=mode == tf.estimator.ModeKeys.TRAIN, "dropout2")
 
   # Dense Layer # 2 (Output)
   # Input Tensor Shape: [m, 4096]
   # Output Tensor Shape: [batch_size, c] #NEEDS TO BE UPDATED WITH APPROPRIATE # OF CLASSES #6
-  logits = tf.layers.dense(inputs=dropout2, units=2)
+  logits = tf.layers.dense(inputs=dropout2, units=2, "logits")
 
   # Apply Softmax
   predictions = {
@@ -118,23 +118,26 @@ def cnnModel(features, labels, mode):
     return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
 
   # Calculate Loss (for both TRAIN and EVAL modes)
-  loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
+  with tf.name_scope("loss"):
+    loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
 
   # Configure the Training Op (for TRAIN mode)
   if mode == tf.estimator.ModeKeys.TRAIN:
     #optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.01)
-    train_op = optimizer.minimize(
-        loss=loss,
-        global_step=tf.train.get_global_step())
-    return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
+    with tf.name_scope("train"):
+      optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.01)
+      train_op = optimizer.minimize(
+          loss=loss,
+          global_step=tf.train.get_global_step())
+      return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
 
   # Add evaluation metrics (for EVAL mode)
-  eval_metric_ops = {
-      "accuracy": tf.metrics.accuracy(
-          labels=labels, predictions=predictions["classes"])}
-  return tf.estimator.EstimatorSpec(
-      mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
+  with tf.name_scope("accuracy"):
+    eval_metric_ops = {
+        "accuracy": tf.metrics.accuracy(
+            labels=labels, predictions=predictions["classes"])}
+    return tf.estimator.EstimatorSpec(
+        mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
 
 
 def main(unused_argv):
@@ -148,6 +151,10 @@ def main(unused_argv):
   # Create the Estimator
   audio_classifier = tf.estimator.Estimator(model_fn=cnnModel, model_dir="checkpoint_path")
 
+
+  sess.run(tf.global_variables_initializer())
+  writer = tf.summary.FileWriter("/tmp/tb_demo/1")
+  writer.add_graph(sess.graph)
   # Set up logging for predictions
   # Log the values in the "Softmax" tensor with label "probabilities"
   #tensors_to_log = {"probabilities": "softmax_tensor"}
