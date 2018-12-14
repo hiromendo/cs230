@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from sklearn.metrics import confusion_matrix
 import numpy as np
 import tensorflow as tf
 
@@ -106,8 +107,8 @@ def alexNet(features, labels, mode):
   # Flatten tensor into a batch of vectors
   # Input Tensor Shape: [m, 9, 9, 512]
   # Output Tensor Shape: [m, 9 * 9 * 512]
-  pool5_flat = tf.reshape(pool5, [-1, 9 * 9 * 512])
-
+ # pool5_flat = tf.reshape(pool5, [-1, 9 * 9 * 512])
+  pool5_flat = tf.reshape(pool5, [-1, 2 * 2 * 512])
   # Dense Layer # 1
   # Densely connected layer with 4096 neurons
   # Input Tensor Shape: [m, 8 * 8 * 512]
@@ -129,7 +130,7 @@ def alexNet(features, labels, mode):
   # Dense Layer # 2 (Output)
   # Input Tensor Shape: [m, 4096]
   # Output Tensor Shape: [batch_size, c] #NEEDS TO BE UPDATED WITH APPROPRIATE # OF CLASSES #6
-  logits = tf.layers.dense(inputs=dropout2, units=5)
+  logits = tf.layers.dense(inputs=dropout2, units=6)
 
   # Apply Softmax
   predictions = {
@@ -147,13 +148,20 @@ def alexNet(features, labels, mode):
 
   # Configure the Training Op (for TRAIN mode)
   if mode == tf.estimator.ModeKeys.TRAIN:
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.01)
     train_op = optimizer.minimize(
         loss=loss,
         global_step=tf.train.get_global_step())
     return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
 
   # Add evaluation metrics (for EVAL mode)
+  #print('confusion matrix:', confusion_matrix(labels, predictions["classes"]), sep='\n')
+ # with tf.Session() as session:
+     # p = session.run(output, feed_dict={x: eval_data})
+     # p_labels = (p > 0.5).astype(int)
+     # print('confusion matrix:', confusion_matrix(eval_labels, p_labels), sep='\n')
+  confusion_matrix = tf.confusion_matrix(labels, predictions["classes"])
+  print(confusion_matrix)
   eval_metric_ops = {
       "accuracy": tf.metrics.accuracy(
           labels=labels, predictions=predictions["classes"])}
@@ -163,13 +171,15 @@ def alexNet(features, labels, mode):
 
 def main(unused_argv):
   # Load training and eval data
-  train_data = np.load("trainX38K.npy")
-  train_labels = np.asarray(np.load("trainY38K.npy"),dtype=np.int32)
-  eval_data = np.load("evalX1k.npy")
-  eval_labels = np.asarray(np.load("evalY1K.npy"),dtype=np.int32)
+  train_data = np.load("dataset/x_train105K_6lang.npy")
+  train_labels = np.asarray(np.load("dataset/y_train105K_6lang.npy"),dtype=np.int32)
+  eval_data = np.load("dataset/x_val22_5K_6lang.npy")
+  eval_labels = np.asarray(np.load("dataset/y_val22_5K_6lang.npy"),dtype=np.int32)
 
+  test_data = np.load("dataset/x_test22_5K_6lang.npy")
+  test_labels = np.asarray(np.load("dataset/y_test22_5K_6lang.npy"),dtype=np.int32)
   # Create the Estimator
-  audio_classifier = tf.estimator.Estimator(model_fn=alexNet, model_dir="/tmp/alexNet")
+  audio_classifier = tf.estimator.Estimator(model_fn=alexNet, model_dir="alexNet")
 
   # Set up logging for predictions
   # Log the values in the "Softmax" tensor with label "probabilities"
@@ -181,23 +191,47 @@ def main(unused_argv):
   train_input_fn = tf.estimator.inputs.numpy_input_fn(
       x={"x": train_data},
       y=train_labels,
-      batch_size=100,
+      batch_size=50,
       num_epochs=None,
       shuffle=True)
   audio_classifier.train(
       input_fn=train_input_fn,
-      steps=20000,
-      hooks=[logging_hook])
+      steps=1)
+     # hooks=[logging_hook])
 
   # Evaluate the model and print results
   eval_input_fn = tf.estimator.inputs.numpy_input_fn(
-      x={"x": eval_data},
-      y=eval_labels,
+      x={"x": train_data},
+      y=train_labels,
+      batch_size=50,
       num_epochs=1,
       shuffle=False)
   eval_results = audio_classifier.evaluate(input_fn=eval_input_fn)
   print(eval_results)
 
+ # eval_input_fn = tf.estimator.inputs.numpy_input_fn(
+ #     x={"x": eval_data},
+ #     y=eval_labels,
+ #     batch_size=50,
+ #     num_epochs=1,
+ #     shuffle=False)
+ # eval_results = audio_classifier.evaluate(input_fn=eval_input_fn)
+ # print(eval_results)
+
+  eval_input_fn = tf.estimator.inputs.numpy_input_fn(
+      x={"x": test_data},
+      y=test_labels,
+      batch_size=50,
+      num_epochs=1,
+      shuffle=False)
+  eval_results = audio_classifier.evaluate(input_fn=eval_input_fn)
+  print(eval_results)
+  predictions = list(audio_classifier.predict(input_fn=eval_input_fn))
+  predicted_classes = [p["classes"] for p in predictions]
+  with tf.Session() as sess:
+      confusion_matrix = tf.confusion_matrix(labels=test_labels, predictions=predicted_classes, num_classes=6)
+      confusion_matrix_to_Print = sess.run(confusion_matrix)
+      print(confusion_matrix_to_Print)
 
 if __name__ == "__main__":
   tf.app.run()

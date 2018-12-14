@@ -6,6 +6,22 @@ import tensorflow as tf
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
+def confusion_matrix_op(logits, labels, num_classes):
+    with tf.variable_scope('confusion_matrix'):
+        # handle fully convolutional classifiers
+        logits_shape = logits.shape
+        if len(logits_shape) == 4 and logits_shape[1:3] == [1, 1]:
+            top_k_logits = tf.squeeze(logits, [1, 2])
+        else:
+            top_k_logits = logits
+
+        #Extract the predicted label (top-1)
+        _, top_predicted_label = tf.nn.top_k(top_k_logits, k=1, sorted=False)
+        # (batch_size, k) -> k = 1 -> (batch_size)
+        top_predicted_label = tf.squeeze(top_predicted_label, axis=1)
+
+        return tf.confusion_matrix(labels, top_predicted_label, num_classes=num_classes) 
+
 
 def cnn_model_fn(features, labels, mode):
 
@@ -73,13 +89,26 @@ def cnn_model_fn(features, labels, mode):
 
   # Configure the Training Op (for TRAIN mode)
   if mode == tf.estimator.ModeKeys.TRAIN:
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.01)
     train_op = optimizer.minimize(
         loss=loss,
         global_step=tf.train.get_global_step())
     return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
 
   # Add evaluation metrics (for EVAL mode)
+ # init_op = tf.initialize_all_variables()
+ # cf_matrix = tf.confusion_matrix(labels,predictions["classes"])
+ # sess = tf.Session()
+ # with sess.as_default():
+  #    print(sess.run(cf_matrix)
+  cm = confusion_matrix_op(logits, labels, 6)
+  #sess = tf.Session()
+  
+  #with sess.as_default():
+  #sess = tf.InteractiveSession()
+  print(cm)
+  #print(cm.eval())
+  #sess.close()
   eval_metric_ops = {
       "accuracy": tf.metrics.accuracy(
           labels=labels, predictions=predictions["classes"])}
@@ -88,22 +117,24 @@ def cnn_model_fn(features, labels, mode):
 
 
 def main(unused_argv):
-  # Load training and eval data
-  train_data = np.load("trainX_pad.npy")
-  train_labels = np.asarray(np.load("trainY.npy"),dtype=np.int32)
-  eval_data = np.load("trainX_pad.npy")
-  eval_labels = np.asarray(np.load("trainY.npy"),dtype=np.int32)
+  # Load training and eval dat
+  train_data = np.load("dataset/x_train105K_6lang.npy")
+  train_labels = np.asarray(np.load("dataset/y_train105K_6lang.npy"),dtype=np.int32)
+  eval_data = np.load("dataset/x_val22_5K_6lang.npy")
+  eval_labels = np.asarray(np.load("dataset/y_val22_5K_6lang.npy"),dtype=np.int32)
+  test_data = np.load("dataset/x_test22_5K_6lang.npy")
+  test_labels = np.load("dataset/y_test22_5K_6lang.npy")
 
   # Create the Estimator
-  audio_classifier = tf.estimator.Estimator(model_fn=cnn_model_fn, model_dir="/tmp/mnist_convnet_model")
+  audio_classifier = tf.estimator.Estimator(model_fn=cnn_model_fn, model_dir="basic_convnet_model")
 
   # Set up logging for predictions
-  # Log the values in the "Softmax" tensor with label "probabilities"
-  tensors_to_log = {"probabilities": "softmax_tensor"}
-  logging_hook = tf.train.LoggingTensorHook(
-      tensors=tensors_to_log, every_n_iter=50)
+  # Log the values in the "Softmax" tensor ion_matrixith label "probabilities"
+  #tensors_to_log = {"probabilities": "softmax_tensor"}
+  #logging_hook = tf.train.LoggingTensorHook(
+      #tensors=tensors_to_log, every_n_iter=50)
 
-  # Train the model
+  # Train the mode
   train_input_fn = tf.estimator.inputs.numpy_input_fn(
       x={"x": train_data},
       y=train_labels,
@@ -112,18 +143,27 @@ def main(unused_argv):
       shuffle=True)
   audio_classifier.train(
       input_fn=train_input_fn,
-      steps=20000,
-      hooks=[logging_hook])
+      steps=1)
+      #hooks=[logging_hook])
 
   # Evaluate the model and print results
   eval_input_fn = tf.estimator.inputs.numpy_input_fn(
+      #x={"x": train_data},
+      #y=train_labels,
       x={"x": eval_data},
       y=eval_labels,
+      #x={"x": test_data},
+      #y=test_labels,
       num_epochs=1,
       shuffle=False)
   eval_results = audio_classifier.evaluate(input_fn=eval_input_fn)
   print(eval_results)
-
+  predictions = list(audio_classifier.predict(input_fn=eval_input_fn))
+  predicted_classes = [p["classes"] for p in predictions]
+  with tf.Session() as sess:
+      confusion_matrix = tf.confusion_matrix(labels=eval_labels, predictions=predicted_classes, num_classes=6)
+      confusion_matrix_to_Print = sess.run(confusion_matrix)
+      print(confusion_matrix_to_Print)
 
 if __name__ == "__main__":
   tf.app.run()

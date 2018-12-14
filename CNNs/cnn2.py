@@ -10,7 +10,8 @@ tf.logging.set_verbosity(tf.logging.INFO)
 def cnnModel(features, labels, mode):
 
   #based on AlexNet
-
+ # tf.reset_default_graph()
+ # sess = tf.Session()
   # Input Layer
   # Reshape X to 4-D tensor: [batch_size, width, height, channels]
   input_layer = tf.reshape(features["x"], [-1, 300, 300, 1])
@@ -122,7 +123,8 @@ def cnnModel(features, labels, mode):
 
   # Configure the Training Op (for TRAIN mode)
   if mode == tf.estimator.ModeKeys.TRAIN:
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
+    #optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.01)
     train_op = optimizer.minimize(
         loss=loss,
         global_step=tf.train.get_global_step())
@@ -138,13 +140,18 @@ def cnnModel(features, labels, mode):
 
 def main(unused_argv):
   # Load test data
-  train_data = np.load("datasets/trainX2.npy")
-  train_labels = np.asarray(np.load("datasets/trainY2.npy"),dtype=np.int32)
-  #eval_data = np.load("datasets/evalX2.npy")
-  #eval_labels = np.asarray(np.load("datasets/evalY2.npy"),dtype=np.int32)
-
+  train_data = np.load("dataset/x_train35K_arabic_german.npy")
+  train_labels = np.asarray(np.load("dataset/y_train35K_arabic_german.npy"),dtype=np.int32)
+  eval_data = np.load("dataset/x_val7_5K_arabic_german.npy")
+  eval_labels = np.asarray(np.load("dataset/y_val7_5K_arabic_german.npy"),dtype=np.int32)
+  train_test_data = np.load("dataset/trainx_1K_a_g.npy")
+  train_test_labels = np.load("dataset/trainy_1K_a_g.npy")
   # Create the Estimator
   audio_classifier = tf.estimator.Estimator(model_fn=cnnModel, model_dir="checkpoint_path")
+  
+ # sess.run(tf.global_variables_initializer())
+ # writer = tf.summary.FileWriter("/tmp/tb_demo/1")
+ # writer.add_graph(sess.graph)
 
   # Set up logging for predictions
   # Log the values in the "Softmax" tensor with label "probabilities"
@@ -161,16 +168,16 @@ def main(unused_argv):
       shuffle=True)
   audio_classifier.train(
       input_fn=train_input_fn,
-      steps=20000)
+      steps=10)
 
   # Evaluate the model and print results
-  #eval_input_fn = tf.estimator.inputs.numpy_input_fn(
-  #    x={"x": eval_data},
-  #    y=eval_labels,
-  #    num_epochs=1,
-  #    shuffle=False)
-  #eval_results = audio_classifier.evaluate(input_fn=eval_input_fn)
-  #print(eval_results)
+  eval_input_fn = tf.estimator.inputs.numpy_input_fn(
+      x={"x": eval_data},
+      y=eval_labels,
+      num_epochs=1,
+      shuffle=False)
+  eval_results = audio_classifier.evaluate(input_fn=eval_input_fn)
+  print(eval_results)
 
 
 if __name__ == "__main__":
