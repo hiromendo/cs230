@@ -9,6 +9,8 @@ from keras import metrics
 from keras import optimizers
 from keras.callbacks import History, ModelCheckpoint
 
+#based on https://github.com/mjpyeon/wavenet-classifier
+
 
 class WaveNetClassifier():
   def __init__(self, input_shape, output_shape, kernel_size = 2, dilation_depth = 9, n_filters = 40, task = 'classification', regression_range = None, load=False, load_dir='./'):
