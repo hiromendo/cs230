@@ -176,7 +176,7 @@ class WaveNetClassifier():
         
     # set callback functions
     if save:
-      saved = save_dir + "saved_wavenet_clasifier.h5"
+      saved = save_dir + "saved_wavenet_classifier.h5"
       hist = save_dir + 'wavenet_classifier_training_history.csv'
       if validation_data is None:
         checkpointer = ModelCheckpoint(filepath=saved, monitor='loss', verbose=1, save_best_only=True)
@@ -188,9 +188,8 @@ class WaveNetClassifier():
       callbacks = None
       
     # compile the model
-    self.model.compile(optimizer, loss, metrics)
-    self.history = self.model.fit(X, Y, shuffle = True, batch_size=batch_size, epochs = epochs, validation_data = validation_data, callbacks=callbacks, initial_epoch=self.start_idx)
-    '''
+    adam_optimizer = optimizers.Adam(lr=0.0005, beta_1=0.5, beta_2=0.8, epsilon=None, decay=0.0, amsgrad=False)
+    self.model.compile(adam_optimizer, loss, metrics)
     try:
       self.history = self.model.fit(X, Y, shuffle = True, batch_size=batch_size, epochs = epochs, validation_data = validation_data, callbacks=callbacks, initial_epoch=self.start_idx)
     except:
@@ -199,7 +198,6 @@ class WaveNetClassifier():
         df.to_csv(hist, encoding='utf-8', index=False)
       raise
       sys.exit()
-    '''
     return self.history
 
   def predict(self, x):
